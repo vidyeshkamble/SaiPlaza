@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Fail</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+</head>
+<body>
+    
+    <form action="{{ url_for('uploadscreenshort') }}" method="post" class="fail-out-contaner" enctype="multipart/form-data">
+
+
+        <div class="contaner-fail">
+            <p>If your payment is done then uplod screen short over here !</p>
+            <input type="text" name="payment_id" placeholder="Enter transaction Id" required>
+            <input type="hidden" name="amount" value="{{ amount }}">
+            <input type="file" name="Paymentss" accept="image/png, image/jpeg" required>
+            <input type="submit" value="Upload">
+            <hr><p style="text-align: center; margin-top: 4px;">Or</p>
+            <button type="button" onclick="window.history.back()">Go Back</button>
+            <p style="text-align: center; margin-top: 4px;">If you have any issue then contact us on <a href="https://wa.me/918149999999">WhatsApp</a></p>
+        </div>
+        
+
+
+
+    </form>    
+
+</body>
+</html>

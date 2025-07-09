@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin All Payment Resived</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+</head>
+<body>
+    <div class="table-page monthlyrecords" id="billRecord">
+
+
+        <div class="filter" style="display: flex;">
+            <!-- <input type="text" id="filtername" placeholder="Enter name Number" onkeyup="filterbyname()"> -->
+            <button onclick="window.location.reload()">All</button>
+            <select id="filterMonth" onchange="filterByFlatno()">
+                <option value="">Select Month</option>
+                {% for month in unic %}
+                    <option value="{{ month }}">{{ month }}</option>
+                {% endfor %}
+            </select>
+            <select id="filterFlatno" onchange="filterByFlatno()">
+                <option value="">Select Flatno</option>
+                {% for flatno in flatnos %}
+                    <option value="{{ flatno }}">{{ flatno }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <div class="totaldisplay">
+            {% set total = namespace(value=0) %}
+            {% set totalPayment = namespace(value=0) %}
+                {% for item in records %}
+                    {% set total.value = total.value + (item.OSAmount | float) %}
+                    {% set totalPayment.value = totalPayment.value + (item.paymentdone | float) %}
+                {% endfor %}
+
+                <!-- Display total at top -->
+                <p id="displayOS"><strong>Total OSAmount:</strong> ₹{{ total.value }}/-</p>
+                <p id="displayPayment"><strong>Total Payment Done:</strong> ₹{{ totalPayment.value }}/-</p>
+        </div>
+
+
+        <div class="maintable">
+            <table>
+                <thead>
+                    <tr class="table-title">
+                        <td>Flatno</td>
+                        <td>Name</td>
+                        <td>OSAmount</td>
+                        <td>Payment Done</td>
+                    </tr>
+                </thead>
+                <tbody id="billTableBody" class="billTableBody">
+                    <!-- {% set total = namespace(value=0) %} -->
+                    {% for item in records %}
+                        <!-- {% set total.value = total.value + (item.OSAmount | float) %} -->
+                        <tr>
+                            <td>{{ item.flatno }}</td>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.OSAmount }}</td>
+                            <td>{{ item.paymentdone }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <!-- <p><strong>Total OSAmount:</strong> {{ total.value }}</p> -->
+
+
+    </div>
+</body>
+</html>
+<script>
+    
+    function filterByFlatno (){
+        const tablebody = document.getElementById('billTableBody');
+        const filterFlatno = document.getElementById('filterFlatno').value;
+        const filterMonth = document.getElementById('filterMonth').value;
+        const displayOS = document.getElementById('displayOS');
+        const displayPayment = document.getElementById('displayPayment');
+        displayOS.innerHTML = '';
+        displayPayment.innerHTML = '';
+
+        fetch('/filterbyflatnoCalculator', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ flatno: filterFlatno, month: filterMonth })
+        })
+        .then(response => response.json())
+        .then(data => {
+            tablebody.innerHTML = '';
+            data.records.forEach(item => {
+
+                const row = document.createElement('tr');
+                displayOS.innerHTML = `<strong>Total OSAmount:</strong> ₹${data.totalOS}/-`;
+                displayPayment.innerHTML = `<strong>Total Payment Done:</strong> ₹${data.totalPayment}/-`;
+                row.innerHTML = `
+                    <td>${item.flatno}</td>
+                    <td>${item.name}</td>
+                    <td>${item.OSAmount}</td>
+                    <td>${item.paymentdone}</td>
+                `;
+                tablebody.appendChild(row);
+            });
+            displayOS.innerHTML = `<strong>Total OSAmount:</strong> ₹${data.totalOS}/-`;
+            displayPayment.innerHTML = `<strong>Total Payment Done:</strong> ₹${data.totalPayment}/-`;
+        });
+    }
+</script>

@@ -1,0 +1,17 @@
+Flask==3.1.1
+colorama==0.4.6
+cryptography==45.0.5
+docutils==0.21.2
+filelock==3.18.0
+ipython==9.4.0
+ipywidgets==8.1.7
+keyring==25.6.0
+mysql-connector-python==8.4.0
+Pillow==11.3.0
+protobuf==6.31.1
+pyOpenSSL==25.1.0
+redis==6.2.0
+Sphinx==8.2.3
+twilio==9.6.3
+gunicorn==21.2.0
+python-dotenv==1.0.1

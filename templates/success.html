@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="/static/success.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">    
+</head>
+
+<body>
+    <form method="post" action="{{ url_for('getBill') }}">
+        <div class="page">
+            <div class="page-top">
+                <img
+                    src="https://st3.depositphotos.com/27803420/33210/v/450/depositphotos_332109504-stock-illustration-green-tag-check-mark-simply.jpg">
+                <h1>Payment Done</h1>
+            </div>
+            <div class="page-bottem">
+                <div class="page-bottem-info">
+                    <input type="hidden" name="payment_id" value="{{ payment_id }}">
+                    <p id="textToCopy">{{ payment_id }} <i class="fa-solid fa-copy" onclick="copyText()"></i></p><br>
+                    <p>₹{{ amount }}/-</p> <input type="hidden" name="amount" value="{{amount}}">
+                </div>
+                <div class="page-bottem-but">
+                    <input type="submit" name="submit" value="Done">
+                </div>
+            </div>
+        </div>
+    </form>
+</body>
+
+</html>
+
+<script>
+    function copyText() {
+        const text = document.getElementById("textToCopy").innerText;
+        navigator.clipboard.writeText(text).then(function () {
+        }).catch(function (error) {
+        });
+    }
+</script>

@@ -1,0 +1,60 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+html{
+    height: 100%;
+}
+body{
+    width: 100wh;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.page{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 90%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: rgb(204, 219, 232) 3px 3px 6px 0px inset, rgba(255, 255, 255, 0.5) -3px -3px 6px 1px inset;
+}
+
+.page-top{
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 30px 0px 30px 0px;
+}
+.page-top img{
+    width: 60%;
+    border-radius: 50%;
+}
+
+.page-bottem{
+    height: 200px;
+}
+.page-bottem-info{
+    width: 100%;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.page-bottem-but{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.page-bottem-but input{
+    width: 90%;
+    padding: 10px;
+    border-radius: 50px;
+    border: 0px solid;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 13px 27px -5px, rgba(0, 0, 0, 0.3) 0px 8px 16px -8px;
+}

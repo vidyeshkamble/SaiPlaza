@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+</head>
+<body>
+    <div class="displayTable" id="displayTable"> 
+
+        <img class="images" id="images" src="https://img.freepik.com/free-vector/diverse-crowd-people-different-ages-races_74855-5235.jpg?semt=ais_hybrid&w=740"><br>
+
+        <label for="flatno">Choose your flat Number</label> 
+        <select class="sendloginbutton" id="flatno" name="flatno">
+            {% for i in arrayFlatno %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <input type="password" class="sendloginbutton" placeholder="Enter password" name="pass" id="pass">
+        <br>
+        <button class="butsendloginbutton" onclick="sendLoginRequest()">Login</button><br>
+
+    </div>
+</body>
+</html>
+<script>
+    function sendLoginRequest(){
+        const flatno = document.getElementById('flatno').value;
+        const pass = document.getElementById('pass').value;
+        
+        fetch('{{ url_for("login") }}',{
+            method : 'POST',
+            headers : {
+                'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify({ id : flatno, pass: pass })
+        })
+        .then(response => response.json())
+        .then(data => {   
+            if (data.message === "Login successful!") {
+                window.location.href = '/dashbord';
+            }
+            else {
+                alert(data.message);
+            }
+
+        })
+
+        .catch(error => {
+            console.error('Error:',error);
+            alert("Login failed!",error);
+        });
+    }    
+</script>

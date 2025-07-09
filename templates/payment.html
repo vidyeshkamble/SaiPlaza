@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+</head>
+<body>
+    <div id="loading-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; text-align:center; padding-top:200px;">
+        <h2>Processing Payment...</h2>
+        <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading..." width="80">
+    </div>
+
+    {% if amount %}
+        {% set row = Array %}
+        <div class="payment-page">
+            <div class="payment-top">
+                <img src="https://static.vecteezy.com/system/resources/previews/060/417/008/non_2x/impressive-distinguished-man-with-a-beard-wearing-a-casual-shirt-with-transparent-background-free-png.png">
+                <div class="payment-top-info">
+                    <p class="smailltext">Sai Plaza, Mantance !</p>
+                    <h3>{{ row[2] }}</h3>
+                </div>
+            </div>
+            <div class="payment-mid">
+                <span>
+                    <i class="fa-regular fa-calendar-days"></i>
+                    <p>{{ row[0] }}</p>
+                </span>
+                <span>
+                    <i class="fa-solid fa-building-user"></i>
+                    <p>{{ row[1] }}</p>
+                </span>
+                <span>
+                    <i class="fa-solid fa-indian-rupee-sign"></i>
+                    <p> {{ amount }}/-</p>
+                </span>
+                <br>
+                <table>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% if responce %}
+                        <p class="smailltext">Select Upi id</p>
+                       {% for upi in responce %}
+                            <tr>
+                                <td>
+                                    <input type="radio" name="userupiid" value="{{ upi }}" required>
+                                </td>
+                                <td>{{ upi }}</td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <p class="smailltext"><i class="fa-solid fa-triangle-exclamation"></i> Add your UPI ID to enable the PhonePe payment option.</p>
+                    {% endif %}
+                </table>
+
+            </div>
+            <div class="payment-bottem">
+                <button style="background-color: white; align-items: center;" onclick="CashPayment('{{ amount }}')">Cash</button> 
+                {% if responce %}
+                    {% if amount %}
+                        {% set row = Array %}
+                        
+                        <img onclick="phonepaycall('{{ amount }}')" src="https://inc42.com/cdn-cgi/image/quality=75/https://asset.inc42.com/2018/01/phonepe1.jpg">
+
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}     
+
+    
+
+
+    <script>
+        async function CashPayment(amount){
+            const systemotp = await sendOTP();
+            const otp = prompt("Enter your OTP:");
+            if (otp) {
+                console.log("System OTP:", systemotp);
+                console.log("User OTP:", otp);
+                if(otp === systemotp.toString()) {
+                    fetch('/cashPayment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ amount: amount })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        alert(data.message);
+                        if (data.status === 'success') {
+                            window.location.href = `{{ url_for('OptionSelected') }}`;
+                        }
+                    })
+                } else {
+                    alert("Incorrect OTP. Please try again.");
+                }
+            } else {
+                alert("OTP not entered.");
+            }
+        }
+        async function sendOTP() {
+            try {
+                const response = await fetch('/sendTextMessage', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.status === 'success') {
+                    return data.otp;
+                } else {
+                    alert("Failed to send OTP. Please try again.");
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error sending OTP:", error);
+                alert("Error contacting server.");
+                return null;
+            }
+        }
+
+        function phonepaycall(amount){
+            document.getElementById("loading-screen").style.display = "block";
+            const selected = document.querySelector('input[name="userupiid"]:checked');
+            if (!selected) {
+                alert("Please select a UPI ID.");
+                document.getElementById("loading-screen").style.display = "none";
+                return;
+            }
+
+            const upiid = selected.value;
+            window.location.href = `upi://pay?pa=9284939599hdfc@ybl&pn=VidyeshKamble&mc=1234&tid=1234567890&am=${amount}&cu=INR`;
+            callPhonePay(amount, upiid);
+        }
+        function callPhonePay(amount,upiId){
+            fetch('/callPhonePay',{
+                method: 'POST',
+                headers:{
+                    'Content-Type' : 'application/json'
+                },
+                body: JSON.stringify({amount : amount, upiid : upiId})
+            })
+            .then(response => response.json())
+            .then(res => {
+                document.getElementById("loading-screen").style.display = "none"; 
+                if(res.status === 'success'){
+                    window.location.href = `/success?amount=${amount}&payment_id=${res.transactionID}`;
+
+                } else if(res.status === 'fail'){
+                    alert(res.message);
+                    window.location.href = `/fail?amount=${amount}`;
+
+                } else if (res.status === 'stopped') {
+                    alert(res.message);  // e.g., UPI not registered
+                }
+            })
+            .catch(error => {
+                document.getElementById("loading-screen").style.display = "none";
+                console.error('Error:', error);
+                alert("An unexpected error occurred.");
+            });
+        }
+
+        
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,114 @@
+@staticmethod
+    def send_Mail(email):
+        try:
+            app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+            app.config['MAIL_PORT'] = 587
+            app.config['MAIL_USE_TLS'] = True
+            app.config['MAIL_USE_SSL'] = False
+            app.config['MAIL_USERNAME'] = 'vidyeshmy@gmail.com'
+            app.config['MAIL_PASSWORD'] = 'sqzp gcof aida usit'
+            app.config['MAIL_DEFAULT_SENDER'] = 'vidyeshmy@gmail.com'
+
+            mail = Mail(app)
+            msg = Message(
+                'Shopping Bill...',
+                recipients=[email],
+                body='Hi there, Apparel Shop has sent you a bill in PDF format. This is a system-generated message.'
+            )
+
+            pdf_path = 'bill.pdf'
+            with app.open_resource(pdf_path) as pdf:
+                msg.attach("bill.pdf", "application/pdf", pdf.read())
+
+            mail.send(msg)
+            return "Mail sent successfully"
+
+        except Exception as e:
+            print(f"Email Send Error: {e}")
+            return f"Failed to send email: {e}"
+
+    @staticmethod
+    def sendOtp():
+        try:
+            totle_price = request.args.get('totle_price')
+            payment_mode = request.args.get('payment_mode')
+
+            obj = FetchDataFromDatabase(int(session.get('user_id', 0)))
+            customer_data = obj.Customer()
+
+            otp = "".join([str(random.randint(0, 9)) for _ in range(6)])
+            session['otp'] = otp  # Store OTP in session for verification
+
+            s = smtplib.SMTP('smtp.gmail.com', 587)
+            s.starttls()
+            s.login("vidyeshmy@gmail.com", "sqzp gcof aida usit")
+            message = f"""
+            Hi {customer_data[1]},
+            
+            Your OTP for Apparel Shop payment is: {otp}
+            
+            Please DO NOT share this OTP with anyone.
+            
+            Regards,
+            Sai Plaza Team
+            """
+            s.sendmail("vidyeshmy@gmail.com", customer_data[3], message)
+            s.quit()
+
+            print("Generated OTP:", otp)
+            return render_template('otp.html', Amount=totle_price, payment_mode=payment_mode, otp=otp)
+
+        except Exception as e:
+            print("Error in sendOtp:", str(e))
+            print(traceback.format_exc())
+            return jsonify({"error": "Failed to send OTP"}), 500
+
+    @staticmethod
+    def verifyOtp():
+        try:
+            entered_otp = request.form.get('entered_otp')
+            original_otp = session.get('otp')
+
+            if entered_otp == original_otp:
+                return render_template('payment_success.html')  # Replace with your success template
+            else:
+                return render_template('otp.html', error="Incorrect OTP! Please try again.")
+
+        except Exception as e:
+            print("Error in verifyOtp:", str(e))
+            return render_template('otp.html', error="Something went wrong while verifying OTP.")
+
+
+
+
+            @app.route('/send_otp')
+def send_otp():
+    return FetchOTP.sendOtp()
+
+@app.route('/verify_otp', methods=['POST'])
+def verify_otp():
+    return FetchOTP.verifyOtp()
+
+
+
+
+    JAVASCRIPT 
+
+    function name(){
+        fetch('',{
+            method : 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({ input : input })
+        })
+        .then(response => response)
+        .then(data => {
+            // Out put
+            
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            alert("Failed to fetch bill data.",err);
+        });
+    }

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Upi Id</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+</head>
+
+<body>
+
+    <div class="topnav-upi upitable">
+        <p style="margin-left: 20px;">Add New UPI id</p>
+        <p class="smailltext" style="text-align: center;"><i class="fa-solid fa-triangle-exclamation"></i> Enter the UPI ID from which you will be making the payment.</p>
+        <input type="text" id="upiIdInput" placeholder="Enter your UPI ID"> 
+        <button onclick="appupipage()">Submit UPI</button>
+    </div>
+    
+
+
+    <div class="table-page monthlyrecords">
+        <table>
+            <thead>
+                <tr class="table-title">
+                    <td>Upi ID</td>
+                    <td>Delete</td>
+                </tr>
+            </thead>
+            <tbody id="billTableBody" class="billTableBody">
+                {% if record == "No Upi ID Avalable !" %}
+                    <tr>
+                        <td colspan="2">{{ record }}</td>
+                    </tr>
+                {% else %}
+                    {% for id in record %}
+                        <tr>
+                            <td>{{ id[0] }}</td>
+                            <td><button onclick="deleteUPI('{{ id[0] }}')" ><i class="fa-solid fa-trash"></i></button></td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    
+</body>
+
+</html>
+<script>
+   function deleteUPI(UPIID){
+        const confirmDelete = confirm("Do you want to delete the UPI ID: " + UPIID + "?");
+        if (confirmDelete) {
+            window.location.href = `/deleteUPI/${encodeURIComponent(UPIID)}`;
+        }
+    }
+    function appupipage() {
+        const upiId = document.getElementById("upiIdInput").value;  // <-- assuming you have this input field
+
+        fetch('/addupi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ upiId: upiId })
+        })
+            .then(response => response.json())
+            .then(respon => {
+                alert("Upi Added!");
+                window.location.reload();
+            });
+    }
+</script>

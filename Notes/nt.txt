@@ -1,0 +1,31 @@
+    def insertToBill(self,amount,payment_id,flatno,month):
+        try:
+            mydb = self.Connection()
+            mycursor = mydb.cursor()
+            
+            arrayCustomer = self.fetchCustomer(flatno)
+            
+            insertQuery = "INSERT INTO saiplaza.bill (BillNo,month,user_id,name,email_id,PhoneNo,Amount,OSAmount) VALUES (%s,%s,%s,%s,%s,%s,%s,%s)"
+            values = (payment_id,month,arrayCustomer[0],arrayCustomer[5],arrayCustomer[4],amount,arrayCustomer[6]-amount)
+            
+            mycursor.execute(insertQuery,values)
+            mydb.commit()
+            
+            updateQuery = "UPDATE saiplaza.customer SET OSAmount = %s WHERE User_id = %s"
+            updateValue = (arrayCustomer[6]-amount,arrayCustomer[0])
+            
+            mycursor.execute(updateQuery,updateValue)
+            mydb.commit()
+            
+            updateQueryCalculator = "UPDATE saiplaza.calculator SET PaymentDone = %s,OSAmount = %s,CurrentPayable = %s WHERE FlatNo = %s AND Month = %s"
+            updateValueCalculator = (amount,arrayCustomer[6]-amount,1000-(arrayCustomer[6]-amount)-amount,flatno,month)
+            
+            mycursor.execute(updateQueryCalculator,updateValueCalculator)
+            mydb.commit()
+                    
+ 
+        except Exception as e:
+            print(e)
+        finally:
+            mydb.close()
+            mycursor.close()      

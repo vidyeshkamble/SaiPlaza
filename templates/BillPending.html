@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pending Bills</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+</head>
+
+<body>
+    
+    
+    <div class="table-page monthlyrecords">
+        <button onclick="window.location.href=`{{ url_for('OptionSelected') }}`">Back</button>
+        <h2>Pending Bills</h2>
+         <table>
+            <thead>
+                <tr class="table-title">
+                    <th>Flat No</th>
+                    <th>Download</th>
+                    <th>Approve</th>
+                    <th>Rejecte</th>
+                </tr>
+            </thead>
+            <tbody class="billTableBody">
+                {% for bill in bills %}
+                <tr>
+                    <td>{{ bill[2] }}</td>
+                    <td>
+                        <a href="{{ url_for('download_bill_image', bill_id=bill[0]) }}" download>
+                            <button>Download Image</button>
+                        </a>
+                    </td>
+                    <td>
+                        <button onclick="approveBill('{{ bill[0] }}')">Approve</button>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('reject_bill', bill_id=bill[0]) }}">
+                            <button>Reject</button>
+                        </a>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function approveBill(billno) {
+            fetch('/approvebill', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ billno: billno })
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Failed to approve bill.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error approving bill.');
+            });
+        }
+    </script>
+</body>
+
+</html>

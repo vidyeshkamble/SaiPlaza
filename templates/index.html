@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sai Plaza</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <link rel="stylesheet" href="/static/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+        integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
+    
+</head>
+<body>
+
+    <div class="displayContaner">
+        <div id="mainContent">
+            <div class="records" id="records">
+                {% if displayTableCustomer %}
+                    {% set item = displayTableCustomer[-1] %}
+                    <form method="post" action="{{ url_for('Payment') }}">
+                        <input type="hidden" name="flatno" value="{{ item[1] }}">
+                        <input type="hidden" name="month" value="{{ item[0] }}">
+
+                        <!-- top Nav -->
+
+                        <div class="top-nav">
+                            <div class="image-view">
+                                <img src="{{ url_for('static',filename='image.png') }}" alt="">
+                                <div class="info">
+                                    <h3>{{ item[2]}} </h3>
+                                    <p>{{ item[1] }}</p>
+                                </div>
+                            </div>
+                            <div class="pendingamountview">₹{{ item[3] }}/-</div>
+                        </div>
+
+                        <!-- Payment Card -->
+
+                        <div class="page-image">
+                            <div class="top-info">
+                                <h2 style="color: rgba(255, 255, 255, 0.767);">Payment</h2>
+                                <img src="">
+                            </div>
+                            <div class="main-info">
+                                <p>Society Monthly Rent : ₹1000/-</p>
+                                <p>Pending Amount : ₹{{ item[3] }}/-</p>
+                            </div>
+
+                            {% if item[3] > 0 %}
+                            <div class="pay-option">
+                                <input type="number" class="input-view" name="amountPayable" placeholder="Enter amount Now your Paying" >    
+                                <input type="submit" class="but-button" value="Pay">
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Calculator Table Session -->
+
+                        <div class="table-page billRecord" id="monthlyRecord" style="display: none;">
+                            <div class="billsearch">
+                                <select id="filterMonth" onchange="filterByMonth()">
+                                    <option value="">Select Month</option>
+                                    {% for month in displayTableCustomer %}
+                                        <option value="{{ month[0] }}">{{ month[0] }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <table>
+                                <tr class="table-title">
+                                    <td>Month</td>
+                                    <td>Description</td>
+                                </tr>
+                                <tbody id="calculatorTableBody">
+                                    {% for last in displayTableCustomer %}
+                                        <tr class="table-record">
+                                            <td>{{ last[0] }}</td>
+                                            <td>
+                                                <p><img src="https://cdn-icons-png.flaticon.com/512/6459/6459980.png" class="smalllogo"> {{ last[4] }}</p>
+                                                <p><img src="https://static.thenounproject.com/png/2931154-200.png" class="smalllogo"> {{ last[5] }}</p>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        <!-- Bill Table Session -->
+                        
+                        <div class="table-page billRecord" id="billRecord" style="display: none;">
+                                <select id="filterMonthbill" onchange="filterByFlatno()">
+                                    <option value="">Select Month</option>
+                                    {% for months in monthofbill %}
+                                        <option value="{{ months }}">{{ months }}</option>
+                                    {% endfor %}
+                                </select>
+                            <table>
+                                <thead>
+                                    <tr class="table-title">
+                                        <td>Bill no.</td>
+                                        <td>Month</td>
+                                        <td>Amount</td>
+                                        <td>Status</td>
+                                    </tr>
+                                </thead>
+                                <tbody id="billTableBody" class="billTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                     <!-- Chat Box Session -->
+
+                    <div class="chatBox" id="chatBox">
+                        <div class="topchat">   
+                            <i class="fa-solid fa-ticket-simple"></i> Ticket Box
+                        </div>
+                        <div class="message-box" id="message-box">
+                            {% for message in messages %}
+                            <div class="messageBox">
+                                <div class="messageBoxTop">
+                                    <h4><i class="fa-solid fa-user"></i> {{message[0]}}</h4> , 
+                                    <span class="messageBoxName">{{message[1]}}</span>
+                                </div>
+                                {{message[2]}}
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="bottemchat">
+                            <input type="text" class="input-chat" id="chat-input" placeholder="Type your message here...">
+                            <button class="send-chat" onclick="sendMessageToChatBox()"><i class="fa-solid fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+
+
+                    </form>     
+
+                    
+                   
+
+
+                {% endif %}    
+                <!-- Add New Month List -->
+                <div class="contaner-admin">
+                    <div class="adminDisplay" id="adminDisplay" style="display: none;">
+                        <form method="post" action="{{ url_for('NewMonth') }}">
+                            <input type="month" name="date" required>
+                            <span class="admin-but">
+                                <input type="submit" name="submit">
+                                <input type="reset">
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            </div>        
+        </div>
+    </div>
+
+
+    
+
+
+
+    
+
+    <!-- Bottem Buttons -->
+
+    <div class="bottom-nav optionfor" id="optionfor" style="display: flex;"> 
+        <button class="nav-btn" onclick="billDisplay()">
+            <span>Bills</span>
+        </button>
+        <button class="nav-btn" onclick="monthlyRecord()">  
+            <span>Records</span>
+        </button>
+        <button class="nav-btn" onclick="UpiAddButton()">  
+            <span>UPI</span>
+        </button>
+        <button class="nav-btn" onclick="window.location.href='/logout'">
+            <span><i class="fa-solid fa-right-from-bracket"></i></span>
+        </button>
+        {% if adminobj %}
+            <button id="adminDisplay-but" style="display: flex;" class="nav-btn" onclick="openmenu()">
+                <span><i class="fa-solid fa-ellipsis-vertical"></i></span>
+            </button>
+        {% endif %}
+        <div class="admindisplayblock" id="admindisplayblock">
+            <button id="adminDisplay-but" onclick="PaymentReceived()">Payment Received</button>
+            <button id="adminDisplay-but" onclick="monthlynew()"><i class="fa-regular fa-calendar-plus"></i> New Month</button>
+            <button id="adminDisplay-but" onclick="pendingbills()">Pending</button>
+        </div>
+    </div>
+
+<script>
+
+    function sendMessageToChatBox(){
+        const message = document.getElementById('chat-input').value;
+        if(message.trim() === '') {
+            alert("Please enter a message.");
+            return;
+        }
+        if(message.length > 5000) {
+            alert("Message is too long. Please limit to 100 characters.");
+            return;
+        }
+        fetch('/sendmessage', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.message === 'Message sent successfully') {
+                window.location.reload();
+            }
+        })
+    }
+
+    function filterByFlatno(){
+        const tablebody = document.getElementById('billTableBody');
+        const filterMonth = document.getElementById('filterMonthbill').value;
+        console.log("Filter Month:", filterMonth);
+
+        fetch('/filterbyflatnobill', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ month: filterMonth })
+        })
+        .then(response => response.json())
+        .then(data => {
+            tablebody.innerHTML = ''; // Clear existing rows
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="2">No records found for the selected month.</td>`;
+                tablebody.appendChild(row);
+                return;
+            }
+
+            data.records.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'table-record';
+                row.innerHTML = `
+                    <td>${item.bill_no}</td>
+                    <td>${item.month}</td>
+                    <td>₹${item.amount}</td>
+                    <td>${item.status}</td>
+                `;
+                tablebody.appendChild(row);
+            });
+        })
+
+    }
+
+    function filterByMonth(){
+        const tablebody = document.getElementById('calculatorTableBody');
+        const filterMonth = document.getElementById('filterMonth').value;
+
+        fetch('/filterbyflatno', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ month: filterMonth })
+        })
+        .then(response => response.json())
+        .then(data => {
+            tablebody.innerHTML = ''; // Clear existing rows
+
+            if (data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="2">No records found for the selected month.</td>`;
+                tablebody.appendChild(row);
+                return;
+            }
+
+            data.records.forEach(item => {
+                const row = document.createElement('tr');
+                row.className = 'table-record';
+                row.innerHTML = `
+                    <td>${item.month}</td>
+                    <td>
+                        <p><img src="https://cdn-icons-png.flaticon.com/512/6459/6459980.png" class="smalllogo"> ${item.paymentdone}</p>
+                        <p><img src="https://static.thenounproject.com/png/2931154-200.png" class="smalllogo"> ${item.OSAmount}</p>
+                    </td>
+                `;
+                tablebody.appendChild(row);
+            });
+        })
+
+    }
+
+    function pendingbills(){
+        window.location.href = '/gotopendingbills';   
+    }
+    function openmenu(){
+        const menu = document.getElementById('admindisplayblock');
+        if(menu.style.display === 'none' || menu.style.display === ''){
+            menu.style.display = 'flex';
+        }else{
+            menu.style.display = 'none'
+        }
+    }
+    function UpiAddButton(){
+        window.location.href = '/gotoupihtml';
+    }
+    function monthlynew(){
+        const display = document.getElementById('adminDisplay');
+        if(display.style.display === 'none' || display.style.display === ''){
+            display.style.display = 'block';
+        }else{
+            display.style.display = 'none'
+        }
+    }
+
+    function monthlyRecord(){
+        document.getElementById('chatBox').style.display = 'none';
+        fetch('{{ url_for("monthlyRecord") }}',{
+            method : 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body : JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Out put
+            if(data === true){
+                document.getElementById('monthlyRecord').style.display = 'block';
+                document.getElementById('billRecord').style.display = 'none';
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            alert("Failed to fetch month data.",err);
+        });
+    }
+
+    function PaymentReceived(){
+        window.location.href = '/gotopaymentreceived';
+    }
+
+    function billDisplay() {
+        const monthlyRecord = document.getElementById('monthlyRecord');
+        const billRecord = document.getElementById('billRecord');
+        document.getElementById('chatBox').style.display = 'none';
+
+
+        monthlyRecord.style.display = 'none';
+        billRecord.style.display = 'block';
+
+
+        fetch('{{ url_for("FetchBill") }} ', {  // Ensure this matches your Flask route name
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('billTableBody');
+            tableBody.innerHTML = "";
+
+            if (!data || data.length === 0) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td colspan="3">No Bill records found.</td>`;
+                tableBody.appendChild(row);
+                return;
+            }
+
+            data.forEach(bill => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${bill.bill_no}</td>
+                    <td>${bill.month}</td>
+                    <td>₹${bill.amount}</td>
+                    <td>${bill.status}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            alert("Failed to fetch bill data.",err);
+        });
+    }
+
+    
+</script>
+
+</body>
+</html>
+
