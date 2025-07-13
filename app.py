@@ -6,6 +6,7 @@ from ConnectionDatabase import FetchDataFromDatabase
 from PaymentGetway import PaymentGetway
 import config
 from emailphoneOTP import FetchOTP
+import pandas as pd
 
 app = Flask(__name__)
 app.secret_key = 'applicationSaiPlaza'
@@ -409,7 +410,30 @@ def uploadscreenshort():
     obj.insertIntoBill(payment_id,month,arrayCustomer,amount,OutstandingAmount,"Pending")
     return redirect(url_for('OptionSelected'))
 
-
+@app.route('/downloadrecords',methods = ['POST'])
+def downloadrecords():
+    data = request.get_json()
+    date = data.get('date')
+    if not date:
+        return jsonify({'message': 'Date is required'}), 400
+    obj = FetchDataFromDatabase()
+    recoreds = obj.fetchCalculatorByMonth(date)
+    if not recoreds:
+        return jsonify({'message': 'No records found for the selected date'}), 404
+    
+    recoreds = [row[:5] for row in recoreds]
+    colume = ['Month','Flat no','Name','OS Amount','Payment Done']
+    
+    
+    df = pd.DataFrame(recoreds,columns=colume) 
+    output = io.BytesIO()
+    df.to_excel(output,index=False,sheet_name='Records',engine='openpyxl')
+    output.seek(0)
+    
+    return send_file(output,
+                     download_name=f"records_{date}.xlsx",
+                     as_attachment=True,
+                     mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
     
     
 @app.route('/approvebill', methods = ['POST'])

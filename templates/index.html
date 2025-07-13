@@ -10,7 +10,7 @@
         integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="icon" type="image/x-icon" href="https://s.tmimgcdn.com/scr/1200x750/166200/modele-de-logo-vectoriel-de-batiment-simple_166214-original.jpg">
-    
+
 </head>
 <body>
 
@@ -134,24 +134,11 @@
 
 
                     </form>     
+                {% endif %}  
+                
+                
 
-                    
-                   
 
-
-                {% endif %}    
-                <!-- Add New Month List -->
-                <div class="contaner-admin">
-                    <div class="adminDisplay" id="adminDisplay" style="display: none;">
-                        <form method="post" action="{{ url_for('NewMonth') }}">
-                            <input type="month" name="date" required>
-                            <span class="admin-but">
-                                <input type="submit" name="submit">
-                                <input type="reset">
-                            </span>
-                        </form>
-                    </div>
-                </div>
             </div>        
         </div>
     </div>
@@ -179,18 +166,93 @@
             <span><i class="fa-solid fa-right-from-bracket"></i></span>
         </button>
         {% if adminobj %}
-            <button id="adminDisplay-but" style="display: flex;" class="nav-btn" onclick="openmenu()">
+            <button id="adminDisplay-but" style="display: flex;" class="nav-btn" onclick="openNav()">
+                <!-- onclick="openmenu()" -->
                 <span><i class="fa-solid fa-ellipsis-vertical"></i></span>
             </button>
         {% endif %}
-        <div class="admindisplayblock" id="admindisplayblock">
-            <button id="adminDisplay-but" onclick="PaymentReceived()">Payment Received</button>
-            <button id="adminDisplay-but" onclick="monthlynew()"><i class="fa-regular fa-calendar-plus"></i> New Month</button>
-            <button id="adminDisplay-but" onclick="pendingbills()">Pending</button>
+    </div>
+
+
+    <!-- Drower -->
+
+    <div class="mySidenav" id="mySidenav">
+        <i class="fa-solid fa-xmark" onclick="closeNav()"></i>
+        <a id="adminDisplay-but" onclick="PaymentReceived()" style="margin-top: 60px;">Payment Received</a>
+        <a id="adminDisplay-but" onclick="monthlynew()">New Month</a>
+
+        <!-- Add New Month List -->
+        <div class="contaner-admin">
+            <div class="adminDisplay" id="adminDisplay" style="display: none;">
+                <form method="post" action="{{ url_for('NewMonth') }}">
+                    <input type="month" name="date" required>
+                    <span class="admin-but">
+                        <input type="submit" name="submit">
+                        <input type="reset">
+                    </span>
+                </form>
+            </div>
         </div>
+
+        <a id="adminDisplay-but" onclick="pendingbills()">Pending</a>
+        <a id="adminDisplay-but" onclick="
+            const el = document.getElementById('download-records');
+            el.style.display = (el.style.display === 'flex') ? 'none' : 'flex';
+        ">Download Records</a>
+
+        <div class="container-admin" id="download-records" style="display: none;">
+            <div class="adminDisplay">
+                <input type="month" id="date-of-download" required>
+                <span class="admin-but">
+                    <input type="submit" onclick="downloadRecords()" value="Download">
+                </span>
+            </div>
+        </div>
+
     </div>
 
 <script>
+    function downloadRecords(){
+        const date = document.getElementById('date-of-download').value;
+        if(!date) {
+            alert("Please select a date.");
+            return;
+        }
+        fetch('/downloadrecords',{
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({date :date})
+        })
+        .then(response => {
+            if(!response.ok){
+                throw new Error("No records or error downloading.");
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `records_${date}.xlsx`;  // ⬅️ Dynamic filename
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+        })
+        .catch(error => {
+            alert("Failed to download records: " + error.message);
+        });
+    }
+
+    function openNav(){
+        document.getElementById("mySidenav").style.height = "100%";
+        document.body.style.overflow = "hidden";
+    }
+    function closeNav(){
+        document.getElementById("mySidenav").style.height = "0%";
+        document.body.style.overflow = "auto";
+    }
 
     function sendMessageToChatBox(){
         const message = document.getElementById('chat-input').value;
